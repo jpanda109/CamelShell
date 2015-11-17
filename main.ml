@@ -1,4 +1,5 @@
 open Char
+open Unix
 
 let print_iter iter lst =
   let f e =
@@ -84,9 +85,8 @@ let parse_tokens toks =
   let rec reverse_args comm =
     match comm with
     | Command args -> Command (List.rev args)
-    | Backgrounded c -> Backgrounded (reverse_args comm) in
+    | Backgrounded c -> Backgrounded (reverse_args c) in
   List.map reverse_args (aux (Command []) toks);;
-  (* aux (Command []) toks;; *)
 
 let ls args =
   print_iter Array.iter (Sys.readdir (Sys.getcwd ()));
@@ -98,6 +98,15 @@ let cd args =
     Sys.chdir (List.nth args 1);
     true
   with Sys_error s -> print_endline s; false;;
+
+let sleep args =
+  if List.length args < 2
+  then (print_endline "sleep needs time param"; false)
+  else
+    try
+      let t = int_of_string (List.nth args 1) in
+      (Unix.sleep t; true)
+    with Failure s -> print_endline "sleep needs int param"; false;;
 
 let get_command_name args =
   match args with
@@ -111,8 +120,13 @@ let rec run_command comm =
       if name = "" then true
       else if name = "ls" then ls args
       else if name = "cd" then cd args
+      else if name = "sleep" then sleep args
       else (Printf.printf "not a valid command %s\n" name; false)
-  | Backgrounded comm' -> run_command comm';;
+  | Backgrounded comm' -> 
+      begin match Unix.fork() with
+      | 0 -> run_command comm'
+      | _ -> true
+      end;;
 
 let rec run_commands commands =
   match commands with
