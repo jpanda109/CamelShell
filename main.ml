@@ -108,6 +108,9 @@ let sleep args =
       (Unix.sleep t; true)
     with Failure s -> print_endline "sleep needs int param"; false;;
 
+let echo args =
+  (print_iter List.iter (List.tl args)); print_newline; true;;
+
 let get_command_name args =
   match args with
   | [] -> ""
@@ -121,6 +124,7 @@ let rec run_command comm =
       else if name = "ls" then ls args
       else if name = "cd" then cd args
       else if name = "sleep" then sleep args
+      else if name = "echo" then echo args
       else (Printf.printf "not a valid command %s\n" name; false)
   | Backgrounded comm' -> 
       begin match Unix.fork() with
