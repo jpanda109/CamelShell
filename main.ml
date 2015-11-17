@@ -131,7 +131,15 @@ let rec run_command comm =
 let rec run_commands commands =
   match commands with
   | [] -> ()
-  | hd::tl -> run_command hd; run_commands tl; ();;
+  | hd::tl -> 
+      begin match Unix.fork() with
+      | 0 -> run_command hd; exit 0
+      | child_pid ->
+          begin match hd with
+          | Backgrounded _ -> run_commands tl;
+          | _ -> (Unix.wait ()); run_commands tl; ()
+          end 
+      end;;
 
 let () =
   let rec loop () =
