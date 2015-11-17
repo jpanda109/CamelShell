@@ -124,7 +124,7 @@ let rec run_command comm =
       else (Printf.printf "not a valid command %s\n" name; false)
   | Backgrounded comm' -> 
       begin match Unix.fork() with
-      | 0 -> run_command comm'
+      | 0 -> run_command comm'; exit 0  (* if bg, exit after command *)
       | _ -> true
       end;;
 
