@@ -1,1 +1,1 @@
-ocamlbuild -use-menhir -tag thread -use-ocamlfind -quiet -pkg core test.native
+ocamlbuild -use-menhir -tag thread -use-ocamlfind -quiet -pkg core main2.native
