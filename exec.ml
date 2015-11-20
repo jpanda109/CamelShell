@@ -45,6 +45,10 @@ let rec run_command comm =
       else (Printf.printf "not a valid command %s\n" name; false)
   | `Background comm' -> 
       run_command comm'
+  | `And (c1, c2) ->
+      run_command c1 && run_command c2
+  | `Or (c1, c2) ->
+      run_command c1 || run_command c2
   | _ -> false;;
 
 let rec run_commands commands =

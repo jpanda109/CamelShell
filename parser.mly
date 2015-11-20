@@ -20,10 +20,10 @@ prog:
 
 statement:
   | c = command; SEMICOLON { c }
-  | c = command; BACKGROUND { `Background c };
+  | c = command; BACKGROUND { `Background c }
+  | LPAREN; cl = list(statement); RPAREN { `Compound cl };
 
 command:
   | al = list(ARG) { `Command al }
-  | LPAREN c = command RPAREN { c }
   | c1 = command; AND; c2 = command { `And (c1, c2) } 
   | c1 = command; OR; c2 = command { `Or (c1, c2) };
