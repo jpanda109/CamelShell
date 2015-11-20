@@ -27,4 +27,4 @@ rule read =
   | lparen { LPAREN }
   | rparen { RPAREN }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf))}
-  | eof { EOF}
+  | eof { EOF }

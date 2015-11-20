@@ -11,7 +11,7 @@
 
 %%
 prog:
-  | EOF { None };
+  | EOF { None }
   | stmt = statement; p = prog { 
     match p with
     | Some p' -> Some (stmt :: p')

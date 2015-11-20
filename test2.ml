@@ -28,7 +28,7 @@ let rec parse_and_print lexbuf =
 let () =
   let rec loop () =
     Printf.printf "%s:=> " (Sys.getcwd());
-    let lexbuf = Lexing.from_string (read_line ()) in
+    let lexbuf = Lexing.from_string ((read_line ())^";") in
     parse_and_print lexbuf;
     loop ()
   in
