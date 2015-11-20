@@ -44,10 +44,7 @@ let rec run_command comm =
       else if name = "echo" then echo args
       else (Printf.printf "not a valid command %s\n" name; false)
   | `Background comm' -> 
-      begin match Unix.fork() with
-      | 0 -> ignore (run_command comm'); exit 0  (* if bg, exit after command *)
-      | _ -> true
-      end
+      run_command comm'
   | _ -> false;;
 
 let rec run_commands commands =
@@ -56,9 +53,9 @@ let rec run_commands commands =
   | hd::tl -> 
       begin match Unix.fork() with
       | 0 -> ignore (run_command hd); exit 0
-      | _ ->
+      | pid ->
           begin match hd with
           | `Background _ -> run_commands tl;
-          | _ -> ignore (Unix.wait ()); run_commands tl; ()
+          | _ -> ignore (Unix.waitpid [] pid); run_commands tl; ()
           end 
       end;;
