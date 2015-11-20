@@ -28,6 +28,16 @@ let echo args =
   print_newline (); 
   true;;
 
+let cat args =
+  List.iter (fun v ->
+    let ic = open_in v in
+    try while true; do
+      print_endline (input_line ic)
+    done;
+    with End_of_file -> close_in ic) (List.tl args);
+  true;;
+
+
 let get_command_name args =
   match args with
   | [] -> ""
@@ -42,6 +52,7 @@ let rec run_command comm =
       else if name = "cd" then cd args
       else if name = "sleep" then sleep args
       else if name = "echo" then echo args
+      else if name = "cat" then cat args
       else (Printf.printf "not a valid command %s\n" name; false)
   | `Background comm' -> 
       run_command comm'

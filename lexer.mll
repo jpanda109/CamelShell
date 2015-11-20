@@ -7,7 +7,7 @@ exception SyntaxError of string
 
 let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
-let arg = ['a'-'z' 'A'-'Z' '_' '-' '0'-'9']+
+let arg = ['a'-'z' 'A'-'Z' '_' '-' '0'-'9' '.' '/']+
 let semicolon = ';'
 let andthen = "&&"
 let orthen = "||"
