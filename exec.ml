@@ -43,17 +43,23 @@ let get_command_name args =
   | [] -> ""
   | hd::_ -> hd;;
 
+let exec_command args bg =
+  match Unix.fork() with
+  | 0 -> execvp (List.nth args 0) (Array.of_list args)
+  | pid ->
+      if bg then true
+      else let (_, status) = Unix.waitpid [] pid in
+      match status with
+      | WEXITED num -> num = 0
+      | _ -> false;;
+
 let rec run_command comm =
   match comm with
   | `Command args ->
       let name = get_command_name args in
       if name = "" then true
-      else if name = "ls" then ls args
       else if name = "cd" then cd args
-      else if name = "sleep" then sleep args
-      else if name = "echo" then echo args
-      else if name = "cat" then cat args
-      else (Printf.printf "not a valid command %s\n" name; false)
+      else exec_command args false
   | `Background comm' -> 
       run_command comm'
   | `And (c1, c2) ->
@@ -62,15 +68,9 @@ let rec run_command comm =
       run_command c1 || run_command c2
   | _ -> false;;
 
+
 let rec run_commands commands =
   match commands with
   | [] -> ()
-  | hd::tl -> 
-      begin match Unix.fork() with
-      | 0 -> ignore (run_command hd); exit 0
-      | pid ->
-          begin match hd with
-          | `Background _ -> run_commands tl;
-          | _ -> ignore (Unix.waitpid [] pid); run_commands tl; ()
-          end 
-      end;;
+  | hd::tl -> ignore (run_command hd); run_commands tl;;
+
