@@ -53,24 +53,25 @@ let exec_command args bg =
       | WEXITED num -> num = 0
       | _ -> false;;
 
-let rec run_command comm =
+let rec run_command comm bg =
   match comm with
   | `Command args ->
       let name = get_command_name args in
       if name = "" then true
+      else if name = "exit" then true
       else if name = "cd" then cd args
-      else exec_command args false
+      else exec_command args bg
   | `Background comm' -> 
-      run_command comm'
+      run_command comm' true
   | `And (c1, c2) ->
-      run_command c1 && run_command c2
+      run_command c1 bg && run_command c2 bg
   | `Or (c1, c2) ->
-      run_command c1 || run_command c2
+      run_command c1 bg || run_command c2 bg
   | _ -> false;;
 
 
 let rec run_commands commands =
   match commands with
   | [] -> ()
-  | hd::tl -> ignore (run_command hd); run_commands tl;;
+  | hd::tl -> ignore (run_command hd false); run_commands tl;;
 

@@ -29,16 +29,12 @@ let () =
   let rec loop () =
     Printf.printf "%s:=> " (Sys.getcwd());
     let line = read_line () in
-    if line = "exit"
-    then ()
-    else
-      let lexbuf = Lexing.from_string (line^";") in
-      begin match parse_with_error lexbuf with
-      | Some v ->
-          Exec.run_commands v
-      | None -> ()
-      end;
-      (* parse_and_print lexbuf; *)
-      loop ()
+    let lexbuf = Lexing.from_string (line^";") in
+    begin match parse_with_error lexbuf with
+    | Some v ->
+        Exec.run_commands v
+    | None -> ()
+    end;
+    loop ()
   in
   loop ();;
