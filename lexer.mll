@@ -15,6 +15,7 @@ let orthen = "||"
 let bg = '&'
 let lparen = '('
 let rparen = ')'
+let rarrow = '>'
 
 rule read =
   parse
@@ -31,5 +32,6 @@ rule read =
   | bg { BACKGROUND }
   | lparen { LPAREN }
   | rparen { RPAREN }
+  | rarrow { RARROW }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf))}
   | eof { EOF }

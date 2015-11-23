@@ -2,10 +2,12 @@
 %token AND OR
 %token BACKGROUND
 %token LPAREN RPAREN
+%token RARROW
 %token SEMICOLON
 %token EOF
 
 %left AND OR
+%left RARROW
 
 %start <Bash.command list option> prog
 
@@ -25,5 +27,6 @@ statement:
 
 command:
   | al = list(ARG) { `Command al }
+  | c1 = command; RARROW; a = ARG { `Redirect (c1, a) }
   | c1 = command; AND; c2 = command { `And (c1, c2) } 
   | c1 = command; OR; c2 = command { `Or (c1, c2) };

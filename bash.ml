@@ -2,6 +2,7 @@ type command = [
   | `Command of string list
   | `Compound of command list
   | `Background of command
+  | `Redirect of command * string
   | `And of command * command
   | `Or of command * command
 ]
@@ -12,6 +13,7 @@ let rec output_command = function
   | `Command args -> print_command args
   | `Compound cs -> print_list cs
   | `Background c -> print_string "Background("; output_command c; print_string ")"
+  | `Redirect (c, arg) -> print_string "Redirect("; output_command c; print_string arg; print_string ")"
   | `And (c1, c2) -> print_string "And("; output_command c1; print_string ", "; output_command c2; print_string ")"
   | `Or (c1, c2) -> print_string "Or("; output_command c1; print_string ", "; output_command c2; print_string ")"
 

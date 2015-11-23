@@ -14,9 +14,12 @@ let get_command_name args =
   | [] -> ""
   | hd::_ -> hd;;
 
-let exec_command args bg =
+let exec_command args bg outc =
   match Unix.fork() with
-  | 0 -> execvp (List.nth args 0) (Array.of_list args)
+  | 0 -> begin
+    Unix.dup2 (Unix.descr_of_out_channel outc) Unix.stdout;
+    execvp (List.nth args 0) (Array.of_list args)
+  end
   | pid ->
       if bg then true
       else let (_, status) = Unix.waitpid [] pid in
@@ -24,25 +27,27 @@ let exec_command args bg =
       | WEXITED num -> num = 0
       | _ -> false;;
 
-let rec run_command comm bg =
+let rec run_command comm bg outc =
   match comm with
   | `Command args ->
       let name = get_command_name args in
       if name = "" then true
       else if name = "exit" then exit 0
       else if name = "cd" then cd args
-      else exec_command args bg
+      else exec_command args bg outc
   | `Background comm' -> 
-      run_command comm' true
+      run_command comm' true outc
+  | `Redirect (c, arg) ->
+      run_command c bg (open_out arg)
   | `And (c1, c2) ->
-      run_command c1 bg && run_command c2 bg
+      run_command c1 bg outc && run_command c2 bg outc
   | `Or (c1, c2) ->
-      run_command c1 bg || run_command c2 bg
+      run_command c1 bg outc || run_command c2 bg outc
   | _ -> false;;
 
 
 let rec run_commands commands =
   match commands with
   | [] -> ()
-  | hd::tl -> ignore (run_command hd false); run_commands tl;;
+  | hd::tl -> ignore (run_command hd false (Unix.out_channel_of_descr Unix.stdout)); run_commands tl;;
 
