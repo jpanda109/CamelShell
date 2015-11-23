@@ -18,6 +18,7 @@ let exec_command args bg ind outd =
   match Unix.fork() with
   | 0 -> begin
     Unix.dup2 outd Unix.stdout;
+    Unix.dup2 ind Unix.stdin;
     execvp (List.nth args 0) (Array.of_list args)
   end
   | pid ->
@@ -43,6 +44,9 @@ let rec run_command comm bg ind outd =
       run_command c1 bg ind outd && run_command c2 bg ind outd
   | `Or (c1, c2) ->
       run_command c1 bg ind outd || run_command c2 bg ind outd
+  | `Pipe (c1, c2) ->
+      let (pipe_in, pipe_out) = Unix.pipe () in
+      ignore(run_command c1 true ind pipe_out); run_command c2 true pipe_in outd
   | _ -> false;;
 
 

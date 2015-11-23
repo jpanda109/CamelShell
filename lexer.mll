@@ -12,6 +12,7 @@ let quoted_arg = '"'_*'"'
 let semicolon = ';'
 let andthen = "&&"
 let orthen = "||"
+let pipe = "|"
 let bg = '&'
 let lparen = '('
 let rparen = ')'
@@ -30,6 +31,7 @@ rule read =
   | andthen { AND }
   | orthen { OR }
   | bg { BACKGROUND }
+  | pipe {PIPE }
   | lparen { LPAREN }
   | rparen { RPAREN }
   | rarrow { RARROW }
